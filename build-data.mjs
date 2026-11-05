@@ -4,7 +4,7 @@ import { writeFileSync, readFileSync, existsSync } from "node:fs";
 import { parseCSV, buildEvents } from "./merge.mjs";
 
 const id = process.env.SHEET_ID;
-const gid = process.env.SHEET_GID || "0";
+const gid = process.env.SHEET_GID || "11896539";
 if (!id) { console.error("SHEET_ID secret is not set."); process.exit(1); }
 
 // Read the Sheet through the Sheets API with the short-lived token from the keyless Google login
