@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Oceanian Electoral Calendar – Oceania Elects</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@400;500;600;700;800&family=Noto+Color+Emoji&display=swap">
+<style>
+/* Oceania Elects style: ocean blue palette, Advent Pro, white cards on a light background */
+:root{
+  --bg:#f3faff; --surface:#ffffff; --ink:#092b43; --muted:#526b7b; --faint:#8296a3; --line:#d8e7ef; --soft:#eaf6fc;
+  --navy:#063b5c; --navy2:#07577f; --gold:#96DCFA; --link:#006b91; --today:#c44747;
+  /* election types: same colours as the country pages and the home page */
+  --c-hos:#B35600; --c-nat:#087ca5; --c-reg:#397b9b; --c-loc:#6d68a8; --c-ref:#5B6170; --c-eu:#2A5DB0;
+  --warn-bg:#fbe7e5; --warn-fg:#9a2219;
+  --f:"Advent Pro", system-ui, sans-serif;
+  --f-flag:"Noto Color Emoji","Apple Color Emoji","Segoe UI Emoji",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg)}
+body{color:var(--ink);font-family:var(--f);font-size:17px;line-height:1.4;font-variant-numeric:tabular-nums}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+
+/* header: navy bar with gold rule, filters in a white card below */
+header{margin-bottom:6px}
+.top{background:var(--navy);border-bottom:2px solid var(--gold);border-radius:6px;padding:11px 18px 9px;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 18px}
+h1{margin:0;color:#fff;font-weight:700;font-size:clamp(1.25rem,3vw,1.6rem);letter-spacing:.08em;text-transform:uppercase;line-height:1.15;text-wrap:balance}
+.range{font-size:.95rem;color:rgba(255,255,255,.75)}
+.range b{color:var(--gold);font-weight:700}
+/* two columns: filters + list on the left, map on the right (top) */
+.cols{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,1fr);gap:18px;align-items:start;margin-top:12px}
+.colL{min-width:0}
+.colR{min-width:0}
+.filters{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:11px 14px;display:grid;gap:9px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:30px;border:1px solid #D5D3CC;background:var(--surface);color:var(--ink);border-radius:999px;padding:0 11px 0 9px;font:600 .9rem var(--f);cursor:pointer}
+.chip i{width:10px;height:10px;border-radius:50%;background:var(--k)}
+.chip .n{color:var(--faint);font-weight:500}
+.chip:hover{border-color:var(--navy)}
+.chip[aria-pressed="false"]{opacity:.5}
+.chip[aria-pressed="false"] i{background:transparent;box-shadow:inset 0 0 0 1.5px var(--k)}
+.chip:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+#q{flex:1 1 220px;min-width:0;border:1px solid #D5D3CC;background:var(--surface);color:var(--ink);border-radius:4px;padding:6px 11px;font:inherit;font-size:.98rem}
+#q:focus{border-color:var(--navy)}
+.legend{display:flex;flex-wrap:wrap;gap:2px 10px;font-size:.88rem;color:var(--muted);align-items:center}
+.tf{display:inline-flex;gap:6px;align-items:center;background:none;border:1px solid transparent;border-radius:4px;padding:3px 7px 3px 3px;font:inherit;color:inherit;cursor:pointer}
+.tf:hover{border-color:var(--line)}
+.tf .st{font:700 .7rem var(--f);text-transform:uppercase;letter-spacing:.06em;border-radius:3px;padding:1px 5px;display:none}
+.tf[data-s="only"]{border-color:var(--navy);background:var(--soft)}
+.tf[data-s="only"] .st{display:inline;background:var(--navy);color:#fff}
+.tf[data-s="hide"]{border-color:var(--line);opacity:.6}
+.tf[data-s="hide"] .st{display:inline;border:1px solid var(--faint);color:var(--muted)}
+.tf[data-s="hide"] .tag,.tf[data-s="hide"] sup{text-decoration:line-through}
+.tf .n{color:var(--faint);font-size:.85rem}
+.tf:focus-visible,.tag[data-t]:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.tag[data-t]{cursor:pointer}
+.hint{display:none}
+
+/* months */
+.month{margin-top:22px}
+.month h2{margin:0 0 10px;padding-bottom:7px;border-bottom:2px solid var(--gold);display:flex;align-items:baseline;gap:10px;color:var(--navy);font-weight:700;font-size:1.1rem;letter-spacing:.07em;text-transform:uppercase}
+.month h2 small{font-size:.85rem;color:var(--faint);font-weight:500;letter-spacing:0;text-transform:none}
+.list{background:var(--surface);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.ev{display:grid;grid-template-columns:52px 4px minmax(0,1fr);gap:0 14px;padding:11px 16px 11px 10px;border-top:1px solid #efeee9}
+.ev:first-child{border-top:0}
+.ev.past{color:var(--muted)}
+.ev.past .bar{opacity:.4}
+.ev.past .flag{filter:grayscale(.6);opacity:.75}
+.date{text-align:right;line-height:1.05;padding-top:2px}
+.date .d{font-size:1.45rem;font-weight:700;color:var(--navy)}
+.ev.past .date .d{color:var(--muted)}
+.date .w{font-size:.78rem;color:var(--faint);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.date.same{visibility:hidden}
+.bar{border-radius:2px;background:var(--k)}
+.body{display:grid;gap:3px;min-width:0}
+.head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 9px}
+.flag{font-family:var(--f-flag);font-size:1.1rem;line-height:1;position:relative;top:1px}
+.flag.code{font:700 .7rem var(--f);color:#fff;background:var(--navy);border-radius:3px;padding:2px 4px;top:-1px}
+.country{font-weight:700;font-size:1.08rem}
+.type{color:var(--k);font-weight:600}
+.ev.past .type{color:var(--muted)}
+.tag{font:700 .72rem var(--f);text-transform:uppercase;letter-spacing:.05em;border-radius:3px;padding:2px 6px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.tag.nf{background:var(--warn-bg);color:var(--warn-fg);border-color:transparent}
+.tag.eu{background:#003399;color:var(--gold);border-color:transparent}
+.specs{font-size:.98rem;color:var(--muted)}
+.specs details summary{cursor:pointer;color:var(--link);font-weight:600;list-style:none;display:inline}
+.specs details summary::-webkit-details-marker{display:none}
+.parts{display:flex;flex-wrap:wrap;gap:2px 16px;font-size:.92rem;color:var(--muted)}
+.parts .p.done{text-decoration:line-through;text-decoration-color:var(--faint)}
+sup.tbc{font:700 .66rem var(--f);color:var(--today);margin-left:2px;letter-spacing:.03em;text-transform:uppercase}
+.today{display:flex;align-items:center;gap:10px;margin:16px 0 -14px;color:var(--today);font:700 .9rem var(--f);text-transform:uppercase;letter-spacing:.08em}
+.today::after{content:"";flex:1;height:2px;background:var(--today);border-radius:1px}
+.pastbox{margin-top:12px}
+.pastbox>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--surface);border:1px solid var(--line);border-radius:6px;color:var(--navy);font:700 1rem var(--f);letter-spacing:.04em}
+.pastbox>summary::-webkit-details-marker{display:none}
+.pastbox>summary:hover{border-color:var(--navy)}
+.pastbox .n{font-size:.88rem;color:var(--faint);font-weight:500;margin-left:auto;letter-spacing:0}
+.chev{width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .15s}
+.pastbox[open]>summary .chev{transform:rotate(45deg)}
+.pastbox[open]>summary{border-color:var(--navy)}
+@media (prefers-reduced-motion:reduce){.chev{transition:none}}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+footer{margin-top:30px;padding-top:12px;border-top:1px solid var(--line);font-size:.9rem;color:var(--faint)}
+/* scope line */
+.scope{margin:0;font-size:.92rem;color:var(--muted);line-height:1.45}
+.scope a{color:var(--link);font-weight:700;white-space:nowrap}
+/* map */
+.mapcard{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 14px 10px}
+.maphead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding-bottom:6px;border-bottom:2px solid var(--gold);margin-bottom:6px}
+.maphead h2{margin:0;color:var(--navy);font-size:1rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
+.maptoggle{display:none;border:1px solid #D5D3CC;background:#fff;border-radius:999px;padding:4px 12px;font:700 .9rem var(--f);color:var(--navy);cursor:pointer}
+.maphint{margin:4px 0 0;font-size:.85rem;color:var(--faint)}
+.mapwrap{position:relative;min-height:120px}
+.mapwrap svg{display:block;width:100%;height:auto}
+.mapwrap .ct{stroke:#fff;stroke-width:.6;transition:opacity .15s}
+.mapwrap .ct.on{cursor:pointer}
+.mapwrap .ct.on:hover,.mapwrap .dot.on:hover{opacity:.8}
+.mapwrap .ct.sel,.mapwrap .dot.sel{stroke:var(--navy);stroke-width:1.8}
+.mapwrap .dot{stroke:#fff;stroke-width:1.2}
+.mapwrap .dot.on{cursor:pointer}
+.maptip{position:absolute;z-index:5;pointer-events:none;background:var(--navy);color:#fff;border-radius:6px;padding:9px 12px;font-size:.92rem;line-height:1.45;min-width:200px;max-width:280px;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+.maptip b{display:block;font-size:1.02rem;margin-bottom:3px;padding-bottom:3px;border-bottom:1px solid rgba(255,255,255,.2)}
+.maptip i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.maptip .more{opacity:.7;font-size:.85rem}
+.maplegend{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:.85rem;color:var(--muted);margin-top:4px}
+.maplegend span{display:inline-flex;align-items:center;gap:6px}
+.maplegend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.maplegend .clear{margin-left:auto;border:0;background:none;color:var(--link);font:700 .9rem var(--f);cursor:pointer;padding:0}
+/* notes + credits */
+.notes{margin-top:22px}
+.notes details>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:11px 16px;background:var(--surface);border:1px solid var(--line);border-radius:6px;color:var(--navy);font:700 1rem var(--f);letter-spacing:.04em}
+.notes details>summary::-webkit-details-marker{display:none}
+.notes details>summary:hover,.notes details[open]>summary{border-color:var(--navy)}
+.notes details[open]>summary .chev{transform:rotate(45deg)}
+.ngrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:10px}
+.ncol{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--navy);border-radius:4px;padding:12px 14px}
+.ncol h3{margin:0;color:var(--navy);font-size:1.02rem;letter-spacing:.06em;text-transform:uppercase}
+.nlead{margin:3px 0 8px;font-size:.92rem;color:var(--faint)}
+.ncol dl{margin:0}
+.ncol dt{font-weight:700;font-size:.95rem;color:var(--ink);margin-top:8px}
+.ncol dd{margin:2px 0 0;font-size:.93rem;color:var(--muted);line-height:1.4}
+.credits{margin-top:14px;padding:12px 16px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:4px;display:grid;gap:3px;font-size:.95rem;color:var(--muted)}
+.credits p{margin:0}
+.credits b{color:var(--navy)}
+.credits a{color:var(--link);font-weight:700}
+@media (max-width:760px){.ngrid{grid-template-columns:1fr}}
+@media (max-width:860px){
+  .cols{grid-template-columns:1fr;gap:0}
+  .colR{order:-1;margin-bottom:10px}
+  .maptoggle{display:inline-block}
+  .mapcard:not(.open) .mapbody{display:none}
+  .mapcard:not(.open) .maphead{border-bottom:0;margin-bottom:0;padding-bottom:0}
+}
+/* data access strip + form (same as the home page) */
+.ds{margin-top:22px;padding:14px 18px;background:var(--navy);color:#fff;border-radius:6px;border-bottom:2px solid #D04848}
+.ds-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px}
+.ds-row p{margin:0;font-size:1.02rem;color:rgba(255,255,255,.8)}
+.ds-row b{color:#fff}
+.ds-btns{display:flex;flex-wrap:wrap;gap:8px}
+.btn{display:inline-flex;align-items:center;padding:8px 14px;border-radius:4px;border:1px solid var(--gold);background:var(--gold);color:var(--navy);font:700 .98rem var(--f);text-decoration:none;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--gold)}
+.btn:hover{filter:brightness(1.06)}
+#form-wrap{background:#fff;color:var(--ink);border-radius:4px;padding:2px 16px 16px;margin-top:14px}
+.fnote{font-size:.98rem;color:var(--muted);margin:14px 0 12px}
+.fnote a,.hintbox a,.chk a{color:var(--link);font-weight:700}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+.form label{display:flex;flex-direction:column;gap:4px;font-size:.88rem;font-weight:700;color:var(--navy)}
+.form .full{grid-column:1/-1}
+.form input,.form select,.form textarea{font:inherit;font-size:1rem;font-weight:400;color:var(--ink);padding:9px 11px;border:1px solid #d5d3cc;border-radius:4px;background:#fff;width:100%}
+.form textarea{min-height:96px;resize:vertical}
+.form input:focus,.form select:focus,.form textarea:focus{outline:2px solid var(--gold);outline-offset:0;border-color:var(--navy)}
+.form .chk{flex-direction:row;align-items:flex-start;gap:8px;font-weight:400;color:var(--muted)}
+.form .chk input{width:auto;margin-top:3px}
+.send{justify-self:start;padding:11px 22px;border:0;border-bottom:2px solid var(--gold);border-radius:4px;background:var(--navy);color:#fff;font:700 1rem var(--f);cursor:pointer}
+.send:hover{background:var(--navy2)}
+.msg{font-size:.95rem;align-self:center}
+.hintbox{margin:0;padding:9px 12px;background:#fff8d6;border-radius:3px;font-size:.98rem}
+.hp{position:absolute;left:-9999px}
+.res{margin-top:3px;font-size:.95rem;color:var(--ink)}
+.res b{color:var(--muted);font-weight:600}
+@media (max-width:600px){.form{grid-template-columns:1fr}}
+@media (max-width:520px){.ev{grid-template-columns:40px 4px minmax(0,1fr);gap:0 10px;padding-right:12px}.date .d{font-size:1.2rem}.top,.filters{padding-left:14px;padding-right:14px}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <div class="top">
+      <h1>Oceanian Electoral Calendar</h1>
+      <div class="range" id="range"></div>
+    </div>
+  </header>
+  <div class="cols">
+    <div class="colL">
+      <div class="filters">
+        <p class="scope">National parliamentary and presidential elections (including by-elections), referendums, regional and territorial elections, and selected local elections across Oceania.</p>
+        <div class="controls" id="chips"></div>
+        <div class="controls">
+          <input id="q" type="search" placeholder="Filter by country or region…" aria-label="Filter by country or region">
+        </div>
+        <div class="legend" id="tags"></div>
+      </div>
+      <main id="out"></main>
+      <footer id="foot"></footer>
+    </div>
+    <aside class="colR">
+      <section class="mapcard" id="mapcard" aria-label="Map of upcoming elections">
+        <div class="maphead"><h2>Next 6 months</h2><button type="button" class="maptoggle" id="maptoggle" aria-expanded="false">Show map</button></div>
+        <div class="mapbody" id="mapbody">
+          <div class="mapwrap" id="mapwrap"><div class="maptip" id="maptip" hidden></div></div>
+          <div class="maplegend" id="maplegend"></div>
+          <p class="maphint">Colour = election types in the next 6 months; stripes = several types · click a country to filter the list</p>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <section class="notes" id="notes">
+    <div class="credits">
+      <p>Found a mistake or a missing election? Write to <a href="mailto:contact@europeelects.eu" target="_top">contact@europeelects.eu</a>.</p>
+    </div>
+  </section>
+
+  <!-- Data access: strip with two paths; the enquiry form opens on demand -->
+  <section class="ds" id="data-access">
+    <div class="ds-row">
+      <p><b>Get the full data.</b> Every election in our calendar, with dates, rounds, election types and date status. Data available between 2017 and 2035</p>
+      <div class="ds-btns">
+        <a class="btn ghost" href="https://europeelects.eu/data/" target="_top">Academic access →</a>
+        <button type="button" class="btn" id="form-open" aria-expanded="false" aria-controls="form-wrap">Commercial &amp; bulk enquiries</button>
+      </div>
+    </div>
+    <div id="form-wrap" hidden>
+      <p class="fnote">For commercial use, bulk access or recurring deliveries. You can also write to <a href="mailto:contact@europeelects.eu" target="_top">contact@europeelects.eu</a>. Students and academic researchers: please follow the steps on our <a href="https://europeelects.eu/data/" target="_top">data page</a>.</p>
+      <form class="form" id="dform" novalidate>
+        <label>Name<input name="name" autocomplete="name" required></label>
+        <label>Email<input name="email" type="email" autocomplete="email" required></label>
+        <label>Organisation<input name="organisation" autocomplete="organization"></label>
+        <label>Type of use<select name="use"><option>Commercial</option><option>Media / journalism</option><option>Non-profit</option><option>Academic / student</option></select></label>
+        <p class="full hintbox" id="acad" hidden>Academic requests are handled through the processing fee. The steps are on our <a href="https://europeelects.eu/data/" target="_top">data page</a>; use this form only if you have a question.</p>
+        <label>Data needed<select name="dataset"><option>Electoral calendar</option><option>Election results</option><option>Polling data</option><option>Bulk access / recurring deliveries</option><option>Other data</option></select></label>
+        <label>Countries and time period<input name="scope" placeholder="e.g. Nigeria and Kenya, 2017–today"></label>
+        <label class="full">What will you use the data for?<textarea name="purpose" required></textarea></label>
+        <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <label class="full chk"><input type="checkbox" name="consent" required> I agree that Europe Elects may use these details to answer my request (see the <a href="https://europeelects.eu/wpautoterms/gdpr-privacy-policy/" target="_top">privacy policy</a>).</label>
+        <button type="submit" class="send">Send enquiry</button><span class="msg" id="fmsg" role="status"></span>
+      </form>
+    </div>
+  </section>
+</div>
+
+<script>
+let DATA = [];
+let sourceNote = "";
+// Flags come from the ISO-2 code listed in the sheet (first column, e.g. ":BJ:"); rows without one show no flag.
+const CATS = [
+  {id:"hos", name:"Head of state", k:"--c-hos"},
+  {id:"nat", name:"National parliament", k:"--c-nat"},
+  {id:"reg", name:"Regional", k:"--c-reg"},
+  {id:"loc", name:"Local", k:"--c-loc"},
+  {id:"ref", name:"Referendum", k:"--c-ref"}
+];
+function cat(t){
+  if(t.startsWith("head of state")) return "hos";
+  if(t.startsWith("national parliament")) return "nat";
+  if(t.startsWith("local")) return "loc";
+  if(t.includes("referendum")) return "ref";
+  return "reg";
+}
+function typeLabel(t){
+  const map = {
+    "head of state/presidential":"President / head of state",
+    "head of state/presidential by-election":"President / head of state",
+    "head of region/presidential":"Head of region",
+    "local (nationwide)":"Local, nationwide",
+    "local (not nationwide but including the capital)":"Local, incl. capital",
+    "national referendum":"Referendum",
+    "regional government":"Regional government",
+    "regional government by-election":"Regional government",
+    "regional parliament":"Regional parliament",
+    "regional parliament (unicameral)":"Regional parliament",
+    "single vote regional parliament and president":"Regional parliament + president",
+    "dependent territory parliament (unicameral)":"Territory parliament",
+    "European Parliament":"European Parliament"
+  };
+  if(map[t]) return map[t];
+  return t.replace(" by-election","").replace("national parliament","National parliament")
+          .replace(" (unicameral)","").replace(/ \((lower|upper) house\)/," · $1 house");
+}
+const MS=86400000;
+const flagEmoji = c => [...c].map(ch=>String.fromCodePoint(0x1F1E6+ch.charCodeAt(0)-65)).join("");
+const esc = s => s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pd = s => { const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); };
+const fmt = (d,o) => d.toLocaleDateString("en-GB",o);
+
+function prepare(list){
+ list.forEach(e=>{
+  e.cat=cat(e.t); e.by=/by-election/.test(e.t);
+  e.p.forEach(p=>{p.s=pd(p.d); p.en=p.e?pd(p.e):p.s;});
+  e.hay=(e.c+" "+(e.s||[]).map(x=>x.n).join(" ")+" "+typeLabel(e.t)).toLowerCase();
+ });
+ return list;
+}
+
+const TAGS=[
+  {id:"nf", html:'<span class="tag nf">Not free/fair</span>', label:"", has:e=>!!e.f},
+  {id:"in", html:'<span class="tag">Indirect</span>', label:"chosen by a body, not voters", has:e=>!!e.i},
+  {id:"by", html:'<span class="tag">By-election</span>', label:"", has:e=>e.by},
+  {id:"tbc",html:'<sup class="tbc">tbc</sup>', label:"date not confirmed", has:e=>e.p.some(p=>p.ok===0)||(e.s||[]).some(z=>z.ok===0)}
+];
+const state={off:new Set(),q:"",hidepast:false,tags:{}};
+try{const s=JSON.parse(localStorage.getItem("ew-prefs")||"{}");state.off=new Set(s.off||[]);state.hidepast=!!s.hidepast;state.tags=s.tags||{};}catch(_){}
+const save=()=>{try{localStorage.setItem("ew-prefs",JSON.stringify({off:[...state.off],hidepast:state.hidepast,tags:state.tags}))}catch(_){}};
+const tagOk=e=>TAGS.every(g=>{const s=state.tags[g.id]; if(!s) return true; return s==="only"?g.has(e):!g.has(e);});
+function cycleTag(id){ const s=state.tags[id]; if(!s) state.tags[id]="only"; else if(s==="only") state.tags[id]="hide"; else delete state.tags[id]; save(); render(); }
+
+function windowNow(){
+  const t=new Date(); t.setHours(0,0,0,0);
+  const a=new Date(t); a.setMonth(a.getMonth()-6);
+  const b=new Date(t); b.setMonth(b.getMonth()+6);
+  return {t,a,b};
+}
+
+function render(){
+  const {t,a,b}=windowNow();
+  document.getElementById("range").innerHTML=
+    `Showing <b>${fmt(a,{day:"numeric",month:"short",year:"numeric"})}</b> → <b>${fmt(b,{day:"numeric",month:"short",year:"numeric"})}</b> · today ${fmt(t,{weekday:"short",day:"numeric",month:"short"})}`;
+
+  // events in window, anchored to first in-window date
+  let inWin=[];
+  DATA.forEach(e=>{
+    const hit=e.p.find(p=>p.en>=a && p.s<=b);
+    if(!hit) return;
+    const anchor = hit.s<a ? a : hit.s;
+    const past = e.p.every(p=>p.en<t);
+    inWin.push({e,anchor,past});
+  });
+
+  // chips with counts (before category filter)
+  const counts={}; inWin.forEach(x=>counts[x.e.cat]=(counts[x.e.cat]||0)+1);
+  const chips=document.getElementById("chips");
+  chips.innerHTML=CATS.filter(c=>counts[c.id]).map(c=>
+    `<button class="chip" data-c="${c.id}" aria-pressed="${!state.off.has(c.id)}" style="--k:var(${c.k})"><i></i>${c.name}<span class="n">${counts[c.id]}</span></button>`).join("");
+
+  const tc={}; inWin.forEach(x=>TAGS.forEach(g=>{if(g.has(x.e)) tc[g.id]=(tc[g.id]||0)+1;}));
+  document.getElementById("tags").innerHTML=TAGS.map(g=>{const s=state.tags[g.id]||"";
+    return `<button class="tf" data-t="${g.id}" data-s="${s}" title="Click: show only → hide → all"><span class="st">${s==="only"?"Only":s==="hide"?"Hidden":""}</span>${g.html}${g.label?" "+g.label:""}<span class="n">${tc[g.id]||0}</span></button>`;}).join("")
+    + `<span class="hint">Click a tag: only → hide → all</span>`;
+  const q=state.q.trim().toLowerCase();
+  let list=inWin.filter(x=>!state.off.has(x.e.cat) && (!q||x.e.hay.includes(q)) && tagOk(x.e));
+  const order={hos:0,nat:1,eu:2,ref:3,reg:4,loc:5};
+  list.sort((x,y)=>x.anchor-y.anchor || order[x.e.cat]-order[y.e.cat] || x.e.c.localeCompare(y.e.c));
+  // Map: upcoming elections that pass the type and tag filters (the search box only filters the list).
+  mapUpdate(inWin.filter(x=>x.anchor>=t && !state.off.has(x.e.cat) && tagOk(x.e)).sort((x,y)=>x.anchor-y.anchor));
+
+  const todayLine=`<div class="today">Today · ${fmt(t,{day:"numeric",month:"long"})}</div>`;
+  const before=list.filter(x=>x.anchor<t), after=list.filter(x=>x.anchor>=t);
+  const out=[];
+  if(before.length){
+    out.push(`<details class="pastbox" id="pastbox"${pastOpen?" open":""}><summary><span class="chev" aria-hidden="true"></span>Past six months<span class="n">${before.length} ${before.length===1?"event":"events"}</span></summary>${months(before,t)}</details>`);
+  }
+  if(list.length) out.push(todayLine);
+  if(after.length) out.push(months(after,t));
+  if(!list.length) out.push(`<div class="list"><div class="empty">No elections match these filters.</div></div>`);
+  document.getElementById("out").innerHTML=out.join("");
+  document.getElementById("foot").textContent=`${list.length} of ${inWin.length} events shown. The window moves with today's date each time the page opens. Rounds, voting days and same-day regional contests are merged into one row. ${sourceNote}`;
+}
+
+let pastOpen=false;
+function months(arr,t){
+  const out=[]; let curM=null,lastDay=null,open=false;
+  for(const x of arr){
+    const mk=x.anchor.getFullYear()*12+x.anchor.getMonth();
+    if(mk!==curM){
+      if(open) out.push("</div></section>");
+      curM=mk; lastDay=null; open=true;
+      const n=arr.filter(y=>y.anchor.getFullYear()*12+y.anchor.getMonth()===mk).length;
+      out.push(`<section class="month"><h2>${fmt(x.anchor,{month:"long",year:"numeric"})}<small>${n} ${n===1?"event":"events"}</small></h2><div class="list">`);
+    }
+    const dk=+x.anchor; out.push(row(x,dk===lastDay,t)); lastDay=dk;
+  }
+  if(open) out.push("</div></section>");
+  return out.join("");
+}
+function row(x,same,t){
+  const e=x.e, c=CATS.find(c=>c.id===e.cat);
+  const code=e.k;
+  const flag = code ? `<span class="flag" aria-hidden="true">${flagEmoji(code)}</span>` : "";
+  const tags=[];
+  if(e.by) tags.push(`<span class="tag" data-t="by" role="button" tabindex="0">By-election</span>`);
+  if(e.i) tags.push(`<span class="tag" data-t="in" role="button" tabindex="0">Indirect</span>`);
+  if(e.f) tags.push(`<span class="tag nf" data-t="nf" role="button" tabindex="0">Not free/fair</span>`);
+  const allTbc = e.p.every(p=>p.ok===0);
+  let specs="";
+  if(e.s){
+    const s=e.s.map(z=>esc(z.n)+(z.ok===0&&!allTbc?'<sup class="tbc">tbc</sup>':""));
+    const lab = e.s.length>3 ? `${e.s.length} ${e.cat==="ref"?"questions":"contests"}: ` : "";
+    if(s.length>6) specs=`<div class="specs">${lab}${s.slice(0,5).join(", ")} <details style="display:inline"><summary>+${s.length-5} more</summary> ${s.slice(5).join(", ")}</details></div>`;
+    else specs=`<div class="specs">${lab}${s.join(e.cat==="ref"?" · ":", ")}</div>`;
+  }
+  const showParts = e.p.length>1 || e.p[0].l || e.p[0].e;
+  const parts = showParts ? `<div class="parts">${e.p.map(p=>{
+      const ds = p.e ? `${fmt(p.s,{day:"numeric"})}–${fmt(p.en,{day:"numeric",month:"short"})}` : fmt(p.s,{day:"numeric",month:"short",year: p.s.getFullYear()!==t.getFullYear()?"numeric":undefined});
+      return `<span class="p${p.en<t?" done":""}">${p.l?esc(p.l)+" ":""}${ds}${p.ok===0?'<sup class="tbc">tbc</sup>':""}</span>`;}).join("")}</div>` : "";
+  const d=x.anchor;
+  return `<article class="ev${x.past?" past":""}" style="--k:var(${c.k})">
+    <div class="date${same?" same":""}"><div class="d">${d.getDate()}${allTbc&&!showParts?'<sup class="tbc">tbc</sup>':""}</div><div class="w">${fmt(d,{weekday:"short"})}</div></div>
+    <div class="bar"></div>
+    <div class="body">
+      <div class="head">${flag}<span class="country">${esc(e.c)}</span><span class="type">${esc(typeLabel(e.t))}</span>${tags.join("")}</div>
+      ${specs}${parts}${e.n?`<div class="specs">${esc(e.n)}</div>`:""}${e.r?`<div class="res"><b>Result:</b> ${esc(e.r)}</div>`:""}
+    </div></article>`;
+}
+
+document.getElementById("chips").addEventListener("click",ev=>{
+  const b=ev.target.closest(".chip"); if(!b) return;
+  const id=b.dataset.c; state.off.has(id)?state.off.delete(id):state.off.add(id); save(); render();
+});
+document.getElementById("q").addEventListener("input",ev=>{state.q=ev.target.value; render();});
+document.getElementById("tags").addEventListener("click",ev=>{const b=ev.target.closest(".tf"); if(b) cycleTag(b.dataset.t);});
+document.getElementById("out").addEventListener("toggle",ev=>{ if(ev.target.id==="pastbox") pastOpen=ev.target.open; },true);
+document.getElementById("out").addEventListener("click",ev=>{const b=ev.target.closest(".tag[data-t]"); if(b) cycleTag(b.dataset.t);});
+document.getElementById("out").addEventListener("keydown",ev=>{const b=ev.target.closest(".tag[data-t]"); if(b&&(ev.key==="Enter"||ev.key===" ")){ev.preventDefault(); cycleTag(b.dataset.t);}});
+
+// keep current: re-render after midnight and when the tab comes back
+let lastKey=new Date().toDateString();
+function tick(){ const k=new Date().toDateString(); if(k!==lastKey){lastKey=k; render();} }
+setInterval(tick,60000);
+
+let lastLoad=0;
+async function load(){
+  try{
+    const r=await fetch("data.json?_="+Date.now(),{cache:"no-store"});
+    if(!r.ok) throw new Error(r.status);
+    const j=await r.json();
+    DATA=prepare(j.events); lastLoad=Date.now();
+    const u=new Date(j.updated);
+    sourceNote=j.updated ? `Data refreshed ${u.toLocaleDateString("en-GB",{day:"numeric",month:"short"})} at ${u.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}.` : "Waiting for the first spreadsheet import.";
+  }catch(err){
+    sourceNote="The election data could not be loaded. Try reloading the page.";
+  }
+  render();
+}
+// Data enquiry form: opens a pre-filled email.
+/* ---------- Map of the next six months ---------- */
+// Calendar country names that are spelled differently in the map data (Natural Earth).
+// Calendar country names that are spelled differently in the map data (Natural Earth).
+const MAP_NAME = {"Micronesia":"Micronesia", "Federated States of Micronesia":"Micronesia", "Nauru":"Nauru", "Naoero":"Nauru", "Wallis and Futuna":"Wallis and Futuna", "Cocos (Keeling) Islands":"Cocos Islands", "Christmas Islands":"Christmas Island", "Christmas Island":"Christmas Island", "Norfolk Island":"Norfolk Island", "Pitcairn Islands":"Pitcairn Islands"};
+// Shown as dots (too small for the map, or missing from it).
+const SMALL = {"Fiji": [178.1, -17.7], "French Polynesia": [-149.4, -17.7], "New Caledonia": [165.6, -21.3], "Kiribati": [-157.4, 1.9], "Marshall Islands": [171.2, 7.1], "Micronesia": [158.2, 6.9], "Niue": [-169.9, -19.0], "Cook Islands": [-159.8, -21.2], "Palau": [134.5, 7.5], "Samoa": [-172.1, -13.8], "Solomon Islands": [160.2, -9.6], "Tokelau": [-172.0, -9.2], "Tonga": [-175.2, -21.2], "Tuvalu": [179.2, -8.5], "Vanuatu": [167.0, -16.0], "Wallis and Futuna": [-176.2, -13.3], "Cocos Islands": [96.8, -12.2], "Christmas Island": [105.6, -10.5], "Nauru": [166.9, -0.5], "Norfolk Island": [167.9, -29.0], "Pitcairn Islands": [-130.1, -25.1], "Niue": [-169.9, -19.0]};
+const M={ready:false,sel:null,by:new Map()};
+function loadScript(src){ return new Promise((ok,no)=>{ const s=document.createElement("script"); s.src=src; s.onload=ok; s.onerror=no; document.head.appendChild(s); }); }
+async function initMap(){
+  try{
+    if(!window.d3) await loadScript("https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js");
+    if(!window.topojson) await loadScript("https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js");
+    const world=await (await fetch("https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-50m.json")).json();
+    const geos=world.objects.countries.geometries;
+    // Somalia is drawn united (Natural Earth draws Somaliland separately); Western Sahara is its own country.
+    const so=geos.find(g=>String(g.id)==="706"), sl=geos.find(g=>g.properties&&g.properties.name==="Somaliland");
+    if(so&&sl){ const m=topojson.mergeArcs(world,[so,sl]); so.type=m.type; so.arcs=m.arcs; geos.splice(geos.indexOf(sl),1); }
+    geos.forEach(g=>{ if(g.properties&&g.properties.name==="W. Sahara") g.properties.name="Western Sahara"; });
+    const feats=topojson.feature(world,{type:"GeometryCollection",geometries:geos.filter(g=>g.type)}).features;
+    const W=900,H=900;
+    // Frame: Australia, New Zealand and the Pacific, including the far western and eastern island territories.
+    const frame={type:"MultiPoint",coordinates:[[108,-10],[120,-45],[155,-48],[180,-45],[-125,-15],[-105,5],[125,5],[155,15],[175,12],[-170,5],[-140,-5],[-125,-25]]};
+    const proj=d3.geoAzimuthalEqualArea().rotate([-155, -10]).fitExtent([[10,10],[W-10,H-10]],frame);
+    const path=d3.geoPath(proj);
+    const wrap=document.getElementById("mapwrap");
+    const svg=d3.select(wrap).append("svg").attr("viewBox",`0 0 ${W} ${H}`).attr("role","img").attr("aria-label","Map of Oceania coloured by the types of election in each country or territory in the next 6 months");
+    M.defs=svg.append("defs"); M.pat={};
+    svg.append("rect").attr("width",W).attr("height",H).attr("fill","#eef3f7");
+    M.paths=svg.append("g").selectAll("path").data(feats.filter(f=>!SMALL[f.properties.name])).join("path").attr("d",path).attr("class","ct").attr("fill","#f1f0eb");
+    M.dots=svg.append("g").selectAll("circle").data(Object.entries(SMALL).map(([n,ll])=>({properties:{name:n},xy:proj(ll)}))).join("circle")
+      .attr("cx",d=>d.xy[0]).attr("cy",d=>d.xy[1]).attr("r",5.5).attr("class","dot").attr("fill","#d8d6cd");
+    const tip=document.getElementById("maptip");
+    const over=(ev,d)=>{ const ev2=M.by.get(d.properties.name); if(!ev2){tip.hidden=true;return;}
+      const r=wrap.getBoundingClientRect();
+      tip.innerHTML=`<b>${esc(ev2[0].e.c)}</b>`+ev2.slice(0,5).map(x=>{const c=CATS.find(c=>c.id===x.e.cat);
+        return `<div><i style="background:var(${c.k})"></i>${fmt(x.anchor,{day:"numeric",month:"short"})} · ${esc(typeLabel(x.e.t))}${x.e.p.every(p=>p.ok===0)?' <span class="more">(tbc)</span>':""}</div>`;}).join("")
+        +(ev2.length>5?`<div class="more">+${ev2.length-5} more</div>`:"")+`<div class="more">${M.sel===d.properties.name?"Click to show all countries":"Click to show only this country"}</div>`;
+      tip.hidden=false; let x=ev.clientX-r.left+14; if(x+290>r.width) x=ev.clientX-r.left-300; tip.style.left=Math.max(4,x)+"px"; tip.style.top=(ev.clientY-r.top+10)+"px"; };
+    const click=(ev,d)=>{ const ev2=M.by.get(d.properties.name); if(!ev2) return;
+      const name=ev2[0].e.c, same=M.sel===d.properties.name; M.sel=same?null:d.properties.name;
+      state.q=same?"":name; document.getElementById("q").value=state.q; render();
+      if(!same) document.getElementById("out").scrollIntoView({behavior:"smooth",block:"start"}); };
+    [M.paths,M.dots].forEach(sel=>sel.on("mousemove",over).on("mouseleave",()=>{tip.hidden=true;}).on("click",click));
+    M.ready=true; render();
+  }catch(err){ document.getElementById("mapcard").hidden=true; }
+}
+function mapUpdate(items){
+  const lg=document.getElementById("maplegend");
+  if(!M.ready){ return; }
+  M.by=new Map();
+  items.forEach(x=>{ const n=MAP_NAME[x.e.c]||x.e.c; if(!M.by.has(n)) M.by.set(n,[]); M.by.get(n).push(x); });
+  // One election type: solid colour. Several types in the next 6 months: diagonal stripes of each type's colour.
+  const cssVar=k=>getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+  const col=n=>{ const l=M.by.get(n); if(!l) return null;
+    const cats=CATS.filter(c=>l.some(x=>x.e.cat===c.id));
+    if(cats.length===1) return cssVar(cats[0].k);
+    const id="st-"+cats.map(c=>c.id).join("-");
+    if(!M.pat[id]){ const w=7, pat=M.defs.append("pattern").attr("id",id).attr("patternUnits","userSpaceOnUse").attr("width",w*cats.length).attr("height",w).attr("patternTransform","rotate(45)");
+      cats.forEach((c,i)=>pat.append("rect").attr("x",i*w).attr("y",0).attr("width",w).attr("height",w).attr("fill",cssVar(c.k))); M.pat[id]=`url(#${id})`; }
+    return M.pat[id]; };
+  if(M.sel && !M.by.has(M.sel)) M.sel=null;
+  if(!state.q) M.sel=null;
+  const covered=new Set(DATA.map(e=>MAP_NAME[e.c]||e.c));
+  M.paths.attr("fill",d=>col(d.properties.name)||(covered.has(d.properties.name)?"#dddbd2":"#f3f2ee")).classed("on",d=>M.by.has(d.properties.name)).classed("sel",d=>M.sel===d.properties.name);
+  M.dots.attr("fill",d=>col(d.properties.name)||"#d8d6cd").classed("on",d=>M.by.has(d.properties.name)).classed("sel",d=>M.sel===d.properties.name)
+    .attr("display",d=>M.by.has(d.properties.name)?null:"none");
+  const used=new Set([...M.by.values()].flatMap(l=>l.map(x=>x.e.cat)));
+  lg.innerHTML=CATS.filter(c=>used.has(c.id)).map(c=>`<span><i style="background:var(${c.k})"></i>${c.name}</span>`).join("")
+    +`<span><i style="background:repeating-linear-gradient(45deg,var(--c-nat) 0 3px,var(--c-reg) 3px 6px)"></i>Several types</span>`
+    +`<span><i style="background:#dddbd2"></i>No election in the next 6 months</span>`
+    +(M.sel?`<button type="button" class="clear" id="mapclear">Show all countries ✕</button>`:"");
+  const cl=document.getElementById("mapclear"); if(cl) cl.onclick=()=>{ M.sel=null; state.q=""; document.getElementById("q").value=""; render(); };
+}
+document.getElementById("maptoggle").addEventListener("click",e=>{ const c=document.getElementById("mapcard"), o=c.classList.toggle("open"); e.currentTarget.setAttribute("aria-expanded",o); e.currentTarget.textContent=o?"Hide map":"Show map"; });
+initMap();
+
+const DATA_EMAIL = "contact@europeelects.eu";
+(function(){
+  const f=document.getElementById("dform"), wrap=document.getElementById("form-wrap"), open=document.getElementById("form-open"), acad=document.getElementById("acad"), msg=document.getElementById("fmsg");
+  open.addEventListener("click",()=>{ wrap.hidden=!wrap.hidden; open.setAttribute("aria-expanded",!wrap.hidden); if(!wrap.hidden) f.name.focus(); });
+  f.use.addEventListener("change",()=>{ acad.hidden=!/academic/i.test(f.use.value); });
+  f.addEventListener("submit",e=>{
+    e.preventDefault(); if(f.website.value) return; if(!f.reportValidity()) return;
+    const d=Object.fromEntries(new FormData(f));
+    const body=`Name: ${d.name}\nEmail: ${d.email}\nOrganisation: ${d.organisation||"–"}\nType of use: ${d.use}\nData needed: ${d.dataset}\nCountries / period: ${d.scope||"–"}\n\nPurpose:\n${d.purpose}`;
+    const a=document.createElement("a"); a.target="_top";
+    a.href=`mailto:${DATA_EMAIL}?subject=${encodeURIComponent("Data enquiry ("+d.use+"): "+d.dataset)}&body=${encodeURIComponent(body)}`;
+    document.body.appendChild(a); a.click(); a.remove();
+    msg.textContent="Your email program should open with the enquiry.";
+  });
+})();
+// When embedded in an iframe: report the content height so the frame can resize.
+function postHeight(){ if(window.parent===window) return; const w=document.querySelector(".wrap"); window.parent.postMessage({"datawrapper-height":{"ae-calendar":Math.ceil(w.getBoundingClientRect().bottom+window.scrollY)}},"*"); }
+if("ResizeObserver" in window) new ResizeObserver(postHeight).observe(document.body);
+document.addEventListener("visibilitychange",()=>{ if(document.hidden) return; tick(); if(Date.now()-lastLoad>30*60000) load(); });
+load();
+</script>
+
+</body>
+</html>
